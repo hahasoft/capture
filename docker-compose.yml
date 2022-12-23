@@ -1,0 +1,14 @@
+version: '3.7'
+services:
+  capture:
+    build: 
+       context: ./ 
+       dockerfile: Dockerfile 
+    image: hahaman/capture
+    ports:
+      - 8080:8080
+    environment:
+      - IS_MODE=container
+      - TZ=Asis/Bangkok
+      
+      
