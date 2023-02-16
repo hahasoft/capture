@@ -9,14 +9,16 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 const port = process.env.PORT || 8080;
 const isMode = process.env.IS_MODE || 'dev';
+const timeout = process.env.TIME_OUT_MS || 1200000;
 
 
-function timeout(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-};
+// function timeout(ms) {
+//     return new Promise(resolve => setTimeout(resolve, ms));
+// };
 
 async function capture(url,user,pwd){
 	console.log('url='+ url +' ,user='+user+' ,pwd='+pwd +',mode='+isMode)
+	console.log('timeout='+timeout);
 	let browser = null;
 	try {		
 		if ( isMode === 'dev'){
@@ -39,6 +41,9 @@ async function capture(url,user,pwd){
 		}
 		
 		const page = await browser.newPage();	
+		// Configure the navigation timeout
+		await page.setDefaultNavigationTimeout(timeout);
+
 		await page.setViewport({ width: 1920, height: 1080});
 		if (user) {
 			await page.setExtraHTTPHeaders({
@@ -46,10 +51,14 @@ async function capture(url,user,pwd){
 			})
 		}
     
-		await page.goto(url, {waitUntil: 'networkidle2'});
+		await page.goto(url, {
+			waitUntil: 'networkidle2',
+			//  // Remove the timeout
+			//  timeout: 0
+		});
 	
-		//await timeout(10000)
-		await page.waitForTimeout (10000);	
+		// await timeout(10000)
+		await page.waitForTimeout (timeout);	
         const screenshot = await page.screenshot({fullPage: true });
 		
 		//await fs.writeFile("/tmp/current.jpg", screenshot,  "binary",function(err) { });
